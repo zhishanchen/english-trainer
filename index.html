@@ -158,6 +158,54 @@ label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margi
 .sit-name{font-size:0.78rem;font-weight:600;}
 .sit-count{font-size:0.7rem;color:var(--text2);margin-top:2px;}
 
+/* ── YOUGLISH MODAL ── */
+.yg-modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.85);z-index:400;
+  align-items:center;justify-content:center;
+  padding:12px;
+}
+.yg-modal-bg.open{display:flex;}
+.yg-box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;padding:16px;width:100%;max-width:560px;
+}
+.yg-header{
+  display:flex;align-items:center;
+  justify-content:space-between;margin-bottom:12px;
+}
+.yg-title{font-size:0.95rem;font-weight:700;color:var(--primary-light);}
+.yg-phrase{
+  font-size:0.82rem;color:var(--text2);
+  margin-bottom:10px;font-style:italic;
+}
+.yg-frame-wrap{
+  position:relative;width:100%;
+  padding-bottom:56.25%;height:0;
+  border-radius:10px;overflow:hidden;
+  background:#000;
+}
+.yg-frame-wrap iframe{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;border:none;
+}
+.yg-tip{
+  font-size:0.75rem;color:var(--text2);
+  margin-top:10px;text-align:center;line-height:1.5;
+}
+.yg-actions{
+  display:flex;gap:8px;margin-top:12px;
+}
+/* YouGlish button style on chunk cards */
+.btn-youglish{
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  color:#fff;
+}
+.btn-tts{
+  background:linear-gradient(135deg,#0891b2,#06b6d4);
+  color:#fff;
+}
+
 .divider{height:1px;background:var(--border);margin:12px 0;}
 .text-muted{color:var(--text2);font-size:0.83rem;}
 .mt8{margin-top:8px;}
@@ -496,6 +544,39 @@ label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margi
   </div>
 </div>
 
+<!-- YOUGLISH MODAL -->
+<div class="yg-modal-bg" id="ygModal">
+  <div class="yg-box">
+    <div class="yg-header">
+      <div class="yg-title">🎬 YouGlish — Real Examples</div>
+      <button class="btn btn-gray btn-sm" onclick="closeYG()">✕ Close</button>
+    </div>
+    <div class="yg-phrase" id="ygPhrase"></div>
+    <div class="yg-frame-wrap">
+      <iframe
+        id="ygFrame"
+        src=""
+        allow="autoplay; encrypted-media"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <div class="yg-tip">
+      💡 Real native speakers using this phrase in context.<br>
+      Use ▶ Next on the player to see more examples.
+    </div>
+    <div class="yg-actions">
+      <button class="btn btn-youglish" style="flex:1;" onclick="ygAccent('us')">🇺🇸 US</button>
+      <button class="btn btn-youglish" style="flex:1;" onclick="ygAccent('uk')">🇬🇧 UK</button>
+      <button class="btn btn-youglish" style="flex:1;" onclick="ygAccent('aus')">🇦🇺 AUS</button>
+    </div>
+    <div class="yg-actions">
+      <button class="btn btn-tts btn-full" id="ygTtsBtn" onclick="speakPhrase()">
+        🔊 Read Aloud (Offline)
+      </button>
+    </div>
+  </div>
+</div>
+  
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -717,12 +798,14 @@ function renderLibList(){
         '<span class="pill pill-'+c.status+'">'+c.status+'</span>'+
       '</div>'+
       '<div class="chunk-actions">'+
-        '<button class="btn btn-gray btn-sm" onclick="openEditModal(\''+c.id+'\')">✏️ Edit</button>'+
-        '<select class="btn btn-sm" style="flex:0 0 auto;padding:5px;" onchange="setStatus(\''+c.id+'\',this.value)">'+
+          '<button class="btn btn-youglish btn-sm" onclick="openYG(\''+esc(c.phrase)+'\',\''+esc(c.example)+'\')">🎬 YouGlish</button>'+
+          '<button class="btn btn-tts btn-sm" onclick="quickSpeak(\''+esc(c.phrase)+'\')">🔊 Speak</button>'+
+          '<button class="btn btn-gray btn-sm" onclick="openEditModal(\''+c.id+'\')">✏️ Edit</button>'+
+          '<select class="btn btn-sm" style="flex:0 0 auto;padding:5px;" onchange="setStatus(\''+c.id+'\',this.value)">'+
           '<option value="learning"'+(c.status==='learning'?' selected':'')+'>Learning</option>'+
           '<option value="practicing"'+(c.status==='practicing'?' selected':'')+'>Practicing</option>'+
           '<option value="mastered"'+(c.status==='mastered'?' selected':'')+'>Mastered</option>'+
-        '</select>'+
+          '</select>'+
         '<button class="btn btn-danger btn-sm" onclick="delChunk(\''+c.id+'\')">🗑️</button>'+
       '</div>'+
     '</div>';
@@ -1165,6 +1248,116 @@ function loadBuiltIn(){
   toast('✅ Added '+added+' chunks!');
 }
 
+// ── YOUGLISH + TTS ──
+
+var ygCurrentPhrase = '';
+var ygCurrentAccent = 'us';
+
+function openYG(phrase, example) {
+  ygCurrentPhrase = phrase;
+  ygCurrentAccent = 'us';
+
+  // Show modal
+  document.getElementById('ygModal').classList.add('open');
+
+  // Display phrase label
+  document.getElementById('ygPhrase').textContent =
+    '"' + phrase + '"' + (example ? ' — e.g. ' + example : '');
+
+  // Load YouGlish embed
+  loadYGFrame(phrase, 'us');
+}
+
+function quickSpeak(phrase) {
+  if (!window.speechSynthesis) {
+    toast('Text-to-speech not supported', 'error');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance(phrase);
+  utt.lang = 'en-US';
+  utt.rate = 0.85;
+  window.speechSynthesis.speak(utt);
+  toast('🔊 Speaking...');
+}
+ 
+function loadYGFrame(phrase, accent) {
+  var encoded = encodeURIComponent(phrase);
+  var url = 'https://youglish.com/pronounce/' + encoded +
+            '/english/' + accent + '?ngram=1';
+  document.getElementById('ygFrame').src = url;
+}
+
+function ygAccent(accent) {
+  ygCurrentAccent = accent;
+  loadYGFrame(ygCurrentPhrase, accent);
+}
+
+function closeYG() {
+  // Stop video by clearing src first
+  document.getElementById('ygFrame').src = '';
+  document.getElementById('ygModal').classList.remove('open');
+  ygCurrentPhrase = '';
+}
+
+function speakPhrase() {
+  if (!ygCurrentPhrase) return;
+
+  // Check browser support
+  if (!window.speechSynthesis) {
+    toast('Your browser does not support text-to-speech', 'error');
+    return;
+  }
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+
+  var btn = document.getElementById('ygTtsBtn');
+  var phrase = ygCurrentPhrase;
+
+  // Speak just the phrase
+  var utt1 = new SpeechSynthesisUtterance(phrase);
+  utt1.lang = 'en-US';
+  utt1.rate = 0.85;
+  utt1.pitch = 1;
+
+  // Then speak example if we have it
+  var exampleText = document.getElementById('ygPhrase').textContent;
+  var hasExample = exampleText.indexOf(' — e.g. ') !== -1;
+  var example = hasExample
+    ? exampleText.split(' — e.g. ')[1]
+    : '';
+
+  utt1.onstart = function() {
+    btn.textContent = '🔊 Speaking...';
+    btn.disabled = true;
+  };
+
+  utt1.onend = function() {
+    if (example) {
+      var utt2 = new SpeechSynthesisUtterance(example);
+      utt2.lang = 'en-US';
+      utt2.rate = 0.82;
+      utt2.pitch = 1;
+      utt2.onend = function() {
+        btn.textContent = '🔊 Read Aloud (Offline)';
+        btn.disabled = false;
+      };
+      window.speechSynthesis.speak(utt2);
+    } else {
+      btn.textContent = '🔊 Read Aloud (Offline)';
+      btn.disabled = false;
+    }
+  };
+
+  window.speechSynthesis.speak(utt1);
+}
+
+// Close YouGlish modal when clicking background
+document.getElementById('ygModal').addEventListener('click', function(e) {
+  if (e.target === this) closeYG();
+});
+  
 // ── INIT ──
 renderHome();
 </script>
