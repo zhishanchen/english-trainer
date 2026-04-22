@@ -1370,9 +1370,9 @@ function ygAccent(accent) {
 function closeYG() {
   // Stop video by clearing src first
   document.getElementById('ygFrame').src = '';
-  document.getElementById('ygModal').classList.remove('open');
-  ygCurrentPhrase = '';
-}
+  document.getElementById('ygModal').addEventListener('click', function(e) {
+  if (e.target === this) closeYG();
+});
 
 function speakPhrase() {
   if (!ygCurrentPhrase) return;
