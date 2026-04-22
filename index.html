@@ -859,7 +859,10 @@ function renderLibList(){
         '<span class="pill pill-'+c.status+'">'+c.status+'</span>'+
       '</div>'+
       '<div class="chunk-actions">'+
-          '<button class="btn btn-youglish btn-sm" onclick="openYG(\''+esc(c.phrase)+'\',\''+esc(c.example)+'\')">🎬 YouGlish</button>'+
+          '<button class="btn btn-youglish btn-sm" '+
+          'data-phrase="'+esc(c.phrase)+'" '+
+          'data-example="'+esc(c.example)+'" '+
+          'onclick="openYGFromBtn(this)">🎬 YouGlish</button>'+
           '<button class="btn btn-tts btn-sm" onclick="quickSpeak(\''+esc(c.phrase)+'\')">🔊 Speak</button>'+
           '<button class="btn btn-gray btn-sm" onclick="openEditModal(\''+c.id+'\')">✏️ Edit</button>'+
           '<select class="btn btn-sm" style="flex:0 0 auto;padding:5px;" onchange="setStatus(\''+c.id+'\',this.value)">'+
@@ -1314,14 +1317,29 @@ function loadBuiltIn(){
 var ygCurrentPhrase = '';
 var ygCurrentAccent = 'us';
 
+function openYGFromBtn(btn) {
+  var phrase  = btn.getAttribute('data-phrase')  || '';
+  var example = btn.getAttribute('data-example') || '';
+  openYG(phrase, example);
+}
+  
 function openYG(phrase, example) {
+  // Decode HTML entities that esc() encoded
+  var div = document.createElement('div');
+  div.innerHTML = phrase;
+  phrase = div.textContent || div.innerText || phrase;
+
+  var div2 = document.createElement('div');
+  div2.innerHTML = example;
+  example = div2.textContent || div2.innerText || example;
+
   ygCurrentPhrase = phrase;
   ygCurrentAccent = 'us';
+
   document.getElementById('ygModal').classList.add('open');
   document.getElementById('ygPhrase').textContent =
     '"' + phrase + '"' + (example ? ' — e.g. ' + example : '');
 
-  // Set all accent links
   updateYGLinks(phrase);
 }
 
