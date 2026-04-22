@@ -556,6 +556,7 @@ label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margi
 
     <!-- Phrase display -->
     <div class="yg-phrase" id="ygPhrase"></div>
+    <div id="ygCleanNote" style="display:none;font-size:0.75rem;color:var(--warning);margin-bottom:8px;text-align:center;"></div>
 
     <!-- iPhone notice -->
     <div style="background:#1e3a8a;border:1px solid #3b82f6;border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
@@ -1325,20 +1326,39 @@ function openYG(phrase, example) {
 }
 
 function updateYGLinks(phrase) {
-  var encoded = encodeURIComponent(phrase);
+  // Clean phrase for better YouGlish results
+  var cleaned = phrase
+    .replace(/[,\.!?;:]+$/g, '')   // remove trailing punctuation
+    .replace(/[,\.!?;:]+/g, ' ')   // replace middle punctuation with space
+    .trim();
+
+  // If phrase is too long (over 5 words), use first 4 words only
+  var words = cleaned.split(' ');
+  if (words.length > 5) {
+    cleaned = words.slice(0, 4).join(' ');
+  }
+
+  var encoded = encodeURIComponent(cleaned);
+  var base = 'https://youglish.com/pronounce/' + encoded + '/english/';
+
   var accents = ['us', 'uk', 'aus'];
   accents.forEach(function(acc) {
     var btn = document.getElementById('yg-link-' + acc);
-    if (btn) {
-      btn.href = 'https://youglish.com/pronounce/' +
-                 encoded + '/english/' + acc;
-    }
+    if (btn) btn.href = base + acc;
   });
-  // Also update the main open button
+
   var mainBtn = document.getElementById('yg-main-link');
-  if (mainBtn) {
-    mainBtn.href = 'https://youglish.com/pronounce/' +
-                   encoded + '/english/us';
+  if (mainBtn) mainBtn.href = base + 'us';
+
+  // Show cleaned phrase so user knows what was searched
+  var cleanNote = document.getElementById('ygCleanNote');
+  if (cleanNote) {
+    if (cleaned.toLowerCase() !== phrase.toLowerCase().replace(/[,\.!?;:]+$/g,'').trim()) {
+      cleanNote.textContent = '🔍 Searching for: "' + cleaned + '"';
+      cleanNote.style.display = 'block';
+    } else {
+      cleanNote.style.display = 'none';
+    }
   }
 }
 
