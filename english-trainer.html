@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>English Trainer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#4f46e5;--primary-light:#818cf8;--primary-dark:#3730a3;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;--secondary:#06b6d4;
+  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
+  --text:#f1f5f9;--text2:#94a3b8;--border:#334155;--radius:12px;
+}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:16px;}
+body{padding-bottom:70px;}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:1rem;font-weight:700;color:var(--primary-light);}
+.streak-badge{background:var(--warning);color:#000;border-radius:20px;padding:4px 10px;font-size:0.8rem;font-weight:700;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:50;}
+.nav-item{flex:1;border:none;background:transparent;color:var(--text2);padding:8px 4px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.6rem;font-weight:600;}
+.nav-item.active{color:var(--primary-light);}
+.nav-icon{font-size:1.3rem;}
+
+/* PAGES */
+.page{display:none;padding:14px;max-width:680px;margin:0 auto;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+.card-title{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text2);margin-bottom:10px;font-weight:700;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-size:0.88rem;font-weight:600;transition:opacity 0.15s;}
+.btn:hover{opacity:0.85;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-warning{background:var(--warning);color:#000;}
+.btn-gray{background:var(--bg3);color:var(--text);}
+.btn-sm{padding:6px 12px;font-size:0.8rem;}
+.btn-full{width:100%;}
+
+/* INPUTS */
+input,textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 12px;font-size:0.9rem;width:100%;outline:none;font-family:inherit;}
+input:focus,textarea:focus,select:focus{border-color:var(--primary-light);}
+textarea{resize:vertical;min-height:70px;}
+label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margin-top:10px;}
+
+/* SECTION HEADER */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.sec-header h2{font-size:1.05rem;font-weight:700;}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;}
+.stat-num{font-size:1.8rem;font-weight:700;color:var(--primary-light);}
+.stat-lbl{font-size:0.75rem;color:var(--text2);margin-top:3px;}
+
+/* PROGRESS */
+.prog-wrap{margin:6px 0;}
+.prog-labels{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text2);margin-bottom:3px;}
+.prog-bar{height:7px;background:var(--bg3);border-radius:10px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--primary),var(--secondary));transition:width 0.4s;}
+
+/* FILTER CHIPS */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:0.78rem;cursor:pointer;white-space:nowrap;}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+/* PILL STATUS */
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:0.7rem;font-weight:700;}
+.pill-learning{background:#78350f;color:#fcd34d;}
+.pill-practicing{background:#1e3a8a;color:#93c5fd;}
+.pill-mastered{background:#064e3b;color:#6ee7b7;}
+
+/* TAG */
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;margin:1px;}
+.tag-blue{background:#1e3a8a;color:#93c5fd;}
+.tag-purple{background:#3b0764;color:#d8b4fe;}
+.tag-green{background:#064e3b;color:#6ee7b7;}
+.tag-yellow{background:#78350f;color:#fcd34d;}
+.tag-cyan{background:#164e63;color:#67e8f9;}
+.tag-pink{background:#831843;color:#fbcfe8;}
+
+/* CHUNK ITEM */
+.chunk-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:9px;}
+.chunk-phrase{font-size:0.98rem;font-weight:700;margin-bottom:3px;}
+.chunk-meaning{font-size:0.82rem;color:var(--text2);margin-bottom:5px;}
+.chunk-example{font-size:0.82rem;color:var(--primary-light);font-style:italic;padding-left:9px;border-left:2px solid var(--primary);margin-bottom:6px;}
+.chunk-meta{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.chunk-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:12px;}
+.search-wrap input{padding-left:34px;}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:1rem;}
+
+/* DRILL */
+.drill-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:14px;padding:22px;text-align:center;margin-bottom:12px;}
+.drill-big{font-size:1.7rem;font-weight:700;color:var(--primary-light);margin-bottom:6px;}
+.drill-sub{font-size:0.82rem;color:var(--text2);}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:var(--bg3);border-radius:10px;padding:3px;margin-bottom:14px;}
+.tab-btn{flex:1;padding:7px 4px;border:none;border-radius:8px;background:transparent;color:var(--text2);font-size:0.75rem;font-weight:600;cursor:pointer;}
+.tab-btn.active{background:var(--primary);color:#fff;}
+
+/* FLASHCARD */
+.fc-wrap{perspective:1000px;cursor:pointer;margin-bottom:14px;}
+.fc-inner{position:relative;width:100%;min-height:170px;transition:transform 0.55s;transform-style:preserve-3d;}
+.fc-wrap.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-front,.fc-back{position:absolute;width:100%;min-height:170px;backface-visibility:hidden;border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fc-front{background:linear-gradient(135deg,var(--primary-dark),var(--primary));}
+.fc-back{background:linear-gradient(135deg,#065f46,#059669);transform:rotateY(180deg);}
+.fc-front h2{font-size:1.3rem;font-weight:700;}
+.fc-back p{font-size:0.9rem;line-height:1.6;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;width:100%;max-width:480px;margin:auto;}
+.modal-box h2{font-size:1rem;font-weight:700;margin-bottom:12px;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+
+/* JOURNAL */
+.j-entry{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:9px;}
+.j-date{font-size:0.75rem;color:var(--text2);margin-bottom:5px;}
+.j-body{font-size:0.87rem;line-height:1.65;}
+
+/* WEEK DOTS */
+.week-row{display:flex;gap:5px;margin-bottom:6px;}
+.w-dot{flex:1;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;}
+.w-done{background:var(--success);color:#fff;}
+.w-today{border:2px solid var(--primary-light);color:var(--primary-light);}
+.w-miss{background:var(--bg3);color:var(--text2);}
+
+/* TIMER */
+.timer-big{font-size:3rem;font-weight:700;text-align:center;letter-spacing:3px;margin:10px 0;}
+.timer-btns{display:flex;gap:8px;justify-content:center;margin-bottom:14px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--success);color:#fff;padding:9px 22px;border-radius:30px;font-size:0.83rem;font-weight:700;opacity:0;transition:all 0.25s;z-index:300;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* EMPTY */
+.empty{text-align:center;padding:36px 16px;color:var(--text2);font-size:0.88rem;}
+
+/* SITUATION GRID */
+.sit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px;}
+.sit-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;}
+.sit-card:hover,.sit-card.active{border-color:var(--primary-light);}
+.sit-icon{font-size:1.6rem;margin-bottom:4px;}
+.sit-name{font-size:0.78rem;font-weight:600;}
+.sit-count{font-size:0.7rem;color:var(--text2);margin-top:2px;}
+
+.divider{height:1px;background:var(--border);margin:12px 0;}
+.text-muted{color:var(--text2);font-size:0.83rem;}
+.mt8{margin-top:8px;}
+.mt12{margin-top:12px;}
+.row{display:flex;gap:8px;}
+.row>*{flex:1;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-title">🎤 English Trainer</div>
+  <div class="streak-badge" id="streakBadge">🔥 0 days</div>
+</div>
+
+<!-- PAGE: HOME -->
+<div class="page active" id="pg-home">
+  <div class="card">
+    <div class="card-title">Today's Progress</div>
+    <div id="homeGreet" style="font-size:0.95rem;font-weight:600;margin-bottom:10px;"></div>
+    <div class="prog-wrap">
+      <div class="prog-labels"><span>Daily Goal</span><span id="goalPct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="goalBar" style="width:0%"></div></div>
+    </div>
+    <div class="row mt12">
+      <button class="btn btn-primary btn-sm" onclick="logSession()">✅ Log Practice</button>
+      <button class="btn btn-gray btn-sm" onclick="showPage('drills')">🎯 Drills</button>
+      <button class="btn btn-gray btn-sm" onclick="showPage('flashcard')">🃏 Cards</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">This Week</div>
+    <div class="week-row" id="weekRow"></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" id="s-chunks">0</div><div class="stat-lbl">Chunks</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-mastered">0</div><div class="stat-lbl">Mastered</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">Streak</div></div>
+  </div>
+
+  <div class="card" id="cotdCard">
+    <div class="card-title">⭐ Chunk of the Day</div>
+    <div id="cotdBody"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚡ Quick Add Chunk</div>
+    <input type="text" id="qPhrase" placeholder="Phrase or sentence you want to learn..."/>
+    <div class="row mt8">
+      <input type="text" id="qMeaning" placeholder="Meaning (optional)"/>
+      <button class="btn btn-primary" onclick="quickAdd()" style="flex:0 0 auto;">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: LIBRARY -->
+<div class="page" id="pg-library">
+  <div class="sec-header">
+    <h2>📚 Chunk Library</h2>
+    <button class="btn btn-primary btn-sm" onclick="openModal()">＋ Add</button>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchBox" placeholder="Search..." oninput="renderLib()"/>
+  </div>
+  <div class="chips" id="catChips"></div>
+  <div class="chips" id="statusChips">
+    <div class="chip active" onclick="setChip(this,'status','all',renderLib)">All</div>
+    <div class="chip" onclick="setChip(this,'status','learning',renderLib)">Learning</div>
+    <div class="chip" onclick="setChip(this,'status','practicing',renderLib)">Practicing</div>
+    <div class="chip" onclick="setChip(this,'status','mastered',renderLib)">Mastered</div>
+  </div>
+  <div class="chips" id="sitChips"></div>
+  <div id="libList"></div>
+</div>
+
+<!-- PAGE: DRILLS -->
+<div class="page" id="pg-drills">
+  <div class="sec-header"><h2>🎯 Speaking Drills</h2></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('word',this)">Word</button>
+    <button class="tab-btn" onclick="switchTab('chunk',this)">Chunk</button>
+    <button class="tab-btn" onclick="switchTab('situation',this)">Situation</button>
+    <button class="tab-btn" onclick="switchTab('timer',this)">Timer</button>
+  </div>
+
+  <!-- WORD TAB -->
+  <div id="tab-word">
+    <div class="drill-card">
+      <div style="font-size:0.75rem;color:var(--text2);margin-bottom:8px;">SEE WORD → SPEAK 3 SENTENCES</div>
+      <div class="drill-big" id="dWord">Press button</div>
+      <div class="drill-sub" id="dWordSub"></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="newWord()">🎲 New Word</button>
+    <div class="card mt12">
+      <div class="card-title">💡 Rules</div>
+      <ul style="font-size:0.83rem;color:var(--text2);padding-left:16px;line-height:2.1;">
+        <li>No thinking in Chinese first</li>
+        <li>Use chunks you have learned</li>
+        <li>Speak at least 30 seconds</li>
+        <li>Mistakes are fine — keep going</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CHUNK TAB -->
+  <div id="tab-chunk" style="display:none;">
+    <div class="card">
+      <div class="card-title">Pick a random chunk → make your own sentence</div>
+      <button class="btn btn-primary btn-full" onclick="newChunkDrill()">🎲 Random Chunk</button>
+    </div>
+    <div id="chunkDrillBox" style="display:none;">
+      <div class="card">
+        <div class="card-title">Your Chunk</div>
+        <div id="cdPhrase" style="font-size:1.1rem;font-weight:700;color:var(--primary-light);margin-bottom:6px;"></div>
+        <div id="cdExample" class="chunk-example"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">✏️ Your sentence using this chunk:</div>
+        <textarea id="cdInput" placeholder="Type your own sentence here..."></textarea>
+        <div class="row mt8">
+          <button class="btn btn-success" onclick="doneChunkDrill()">✅ Done</button>
+          <button class="btn btn-gray" onclick="newChunkDrill()">🎲 New</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SITUATION TAB -->
+  <div id="tab-situation" style="display:none;">
+    <div id="sitGrid" class="sit-grid"></div>
+    <div id="sitDetail" style="display:none;">
+      <div class="sec-header">
+        <h2 id="sitDetailTitle"></h2>
+        <button class="btn btn-gray btn-sm" onclick="closeSitDetail()">✕ Back</button>
+      </div>
+      <div id="sitDetailChunks"></div>
+      <div class="card">
+        <div class="card-title">🎭 Roleplay Scenario</div>
+        <div id="sitRoleplay" style="font-size:0.95rem;line-height:1.6;padding:6px 0;"></div>
+        <button class="btn btn-gray btn-sm mt8" onclick="newRoleplay()">🎲 New Scenario</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMER TAB -->
+  <div id="tab-timer" style="display:none;">
+    <div class="card">
+      <div class="card-title">⏱️ Speaking Timer</div>
+      <div class="timer-big" id="timerDisp">00:00</div>
+      <div class="timer-btns">
+        <button class="btn btn-success" id="timerBtn" onclick="timerToggle()">▶ Start</button>
+        <button class="btn btn-gray" onclick="timerReset()">↺ Reset</button>
+      </div>
+      <div class="chips">
+        <div class="chip" onclick="setTarget(60)">1 min</div>
+        <div class="chip" onclick="setTarget(120)">2 min</div>
+        <div class="chip" onclick="setTarget(180)">3 min</div>
+        <div class="chip" onclick="setTarget(300)">5 min</div>
+      </div>
+      <div id="timerProg" style="display:none;">
+        <div class="prog-wrap">
+          <div class="prog-labels"><span id="timerProgLbl"></span><span id="timerProgPct"></span></div>
+          <div class="prog-bar"><div class="prog-fill" id="timerProgBar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Speaking Topic</div>
+      <div id="topicDisp" style="font-size:0.95rem;padding:8px 0;line-height:1.6;"></div>
+      <button class="btn btn-gray btn-sm mt8" onclick="newTopic()">🎲 New Topic</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: FLASHCARD -->
+<div class="page" id="pg-flashcard">
+  <div class="sec-header">
+    <h2>🃏 Flashcard Review</h2>
+    <span class="text-muted" id="fcCounter">0/0</span>
+  </div>
+  <div class="chips" id="fcFilterChips">
+    <div class="chip active" onclick="setFcFilter(this,'all')">All</div>
+    <div class="chip" onclick="setFcFilter(this,'learning')">Learning</div>
+    <div class="chip" onclick="setFcFilter(this,'practicing')">Practicing</div>
+    <div class="chip" onclick="setFcFilter(this,'mastered')">Mastered</div>
+  </div>
+  <div class="fc-wrap" id="fcWrap" onclick="flipCard()">
+    <div class="fc-inner" id="fcInner">
+      <div class="fc-front"><div style="font-size:0.72rem;opacity:0.7;margin-bottom:10px;">TAP TO FLIP</div><h2 id="fcFront">Tap Shuffle</h2></div>
+      <div class="fc-back"><div style="font-size:0.72rem;opacity:0.7;margin-bottom:8px;">MEANING & EXAMPLE</div><p id="fcBack">to begin</p></div>
+    </div>
+  </div>
+  <div class="row" style="margin-bottom:12px;">
+    <button class="btn btn-danger btn-sm" onclick="rateCard('learning')">😰 Learning</button>
+    <button class="btn btn-warning btn-sm" onclick="rateCard('practicing')">🤔 Practicing</button>
+    <button class="btn btn-success btn-sm" onclick="rateCard('mastered')">🎉 Mastered</button>
+  </div>
+  <button class="btn btn-gray btn-full" onclick="initCards()">🔀 Shuffle</button>
+</div>
+
+<!-- PAGE: JOURNAL -->
+<div class="page" id="pg-journal">
+  <div class="sec-header">
+    <h2>📝 Journal</h2>
+    <span class="text-muted" id="jCount"></span>
+  </div>
+  <div class="card">
+    <div class="card-title">✍️ New Entry</div>
+    <label>What did you practice?</label>
+    <textarea id="jPracticed" placeholder="e.g. Practiced opinion phrases..." rows="2"></textarea>
+    <label>Chunks I used today</label>
+    <input type="text" id="jChunks" placeholder="e.g. 'Having said that', 'The thing is...'"/>
+    <label>Difficulties</label>
+    <textarea id="jDiff" placeholder="e.g. Still freezing on unexpected questions..." rows="2"></textarea>
+    <label>Wins 🏆</label>
+    <textarea id="jWins" placeholder="e.g. Used a chunk naturally!" rows="2"></textarea>
+    <label>Mood</label>
+    <div class="chips" id="moodChips">
+      <div class="chip" onclick="setMood(this,'1')">😞1</div>
+      <div class="chip" onclick="setMood(this,'2')">😐2</div>
+      <div class="chip active" onclick="setMood(this,'3')">😊3</div>
+      <div class="chip" onclick="setMood(this,'4')">😄4</div>
+      <div class="chip" onclick="setMood(this,'5')">🤩5</div>
+    </div>
+    <button class="btn btn-primary btn-full mt12" onclick="saveJournal()">💾 Save Entry</button>
+  </div>
+  <div id="jList"></div>
+</div>
+
+<!-- PAGE: SETTINGS -->
+<div class="page" id="pg-settings">
+  <div class="sec-header"><h2>⚙️ Settings</h2></div>
+  <div class="card">
+    <div class="card-title">Daily Goal</div>
+    <label>Minutes per day</label>
+    <input type="number" id="goalInput" min="5" max="120" value="30"/>
+    <button class="btn btn-primary btn-sm mt8" onclick="saveGoal()">Save</button>
+  </div>
+  <div class="card">
+    <div class="card-title">📥 Starter Library</div>
+    <p class="text-muted" style="margin-bottom:10px;">Load 40+ built-in chunks instantly</p>
+    <button class="btn btn-primary btn-full" onclick="loadBuiltIn()">Load Built-in Chunks</button>
+  </div>
+  <div class="card">
+    <div class="card-title">💾 Backup</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-gray btn-full" onclick="exportData()">⬇️ Export JSON</button>
+      <button class="btn btn-gray btn-full" onclick="document.getElementById('impFile').click()">⬆️ Import JSON</button>
+      <input type="file" id="impFile" accept=".json" style="display:none" onchange="importData(event)"/>
+      <button class="btn btn-danger btn-full" onclick="clearData()">🗑️ Clear All Data</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Progress Summary</div>
+    <div id="progSummary"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showPage('home')">
+    <span class="nav-icon">🏠</span>Home
+  </button>
+  <button class="nav-item" id="nav-library" onclick="showPage('library')">
+    <span class="nav-icon">📚</span>Library
+  </button>
+  <button class="nav-item" id="nav-drills" onclick="showPage('drills')">
+    <span class="nav-icon">🎯</span>Drills
+  </button>
+  <button class="nav-item" id="nav-flashcard" onclick="showPage('flashcard')">
+    <span class="nav-icon">🃏</span>Cards
+  </button>
+  <button class="nav-item" id="nav-journal" onclick="showPage('journal')">
+    <span class="nav-icon">📝</span>Journal
+  </button>
+  <button class="nav-item" id="nav-settings" onclick="showPage('settings')">
+    <span class="nav-icon">⚙️</span>Settings
+  </button>
+</nav>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <h2 id="modalTitle">Add Chunk</h2>
+    <input type="hidden" id="editId"/>
+    <label>Phrase / Sentence *</label>
+    <input type="text" id="mPhrase" placeholder="e.g. Having said that..."/>
+    <label>Meaning (optional)</label>
+    <input type="text" id="mMeaning" placeholder="e.g. 话虽如此..."/>
+    <label>Example sentence</label>
+    <textarea id="mExample" placeholder="e.g. Having said that, I still think we should try." rows="2"></textarea>
+    <label>Notes / How to use</label>
+    <textarea id="mNotes" placeholder="Context or usage tips..." rows="2"></textarea>
+    <label>Category</label>
+    <select id="mCat">
+      <option value="starter">🗣️ Starters & Fillers</option>
+      <option value="opinion">💭 Opinions</option>
+      <option value="transition">↔️ Transitions</option>
+      <option value="buying-time">⏳ Buying Time</option>
+      <option value="agreement">🤝 Agreement/Disagreement</option>
+      <option value="clarification">❓ Clarification</option>
+      <option value="emotion">😊 Emotions</option>
+      <option value="work">💼 Work/Professional</option>
+      <option value="social">☕ Social/Small Talk</option>
+      <option value="presentation">📊 Presentation</option>
+      <option value="daily">🌍 Daily Life</option>
+      <option value="custom">✏️ Custom</option>
+    </select>
+    <label>Situation</label>
+    <select id="mSit">
+      <option value="any">🌐 Any / General</option>
+      <option value="work-meeting">💼 Work Meeting</option>
+      <option value="presentation">📊 Presentation</option>
+      <option value="casual-chat">☕ Casual Chat</option>
+      <option value="interview">👔 Job Interview</option>
+      <option value="phone-call">📱 Phone / Video Call</option>
+      <option value="disagreement">⚡ Disagreement</option>
+      <option value="networking">🤝 Networking</option>
+      <option value="travel">✈️ Travel</option>
+    </select>
+    <label>Status</label>
+    <select id="mStatus">
+      <option value="learning">Learning</option>
+      <option value="practicing">Practicing</option>
+      <option value="mastered">Mastered</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="flex:1" onclick="saveChunk()">💾 Save</button>
+      <button class="btn btn-gray" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STORAGE ──
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d;}catch{return d;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+var chunks   = load('et_chunks',[]);
+var sessions = load('et_sessions',[]);
+var journals = load('et_journals',[]);
+var cfg      = load('et_cfg',{goal:30,streak:0,lastDate:''});
+
+function persist(){
+  save('et_chunks',chunks);
+  save('et_sessions',sessions);
+  save('et_journals',journals);
+  save('et_cfg',cfg);
+}
+
+// ── HELPERS ──
+function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36);}
+function today(){return new Date().toISOString().split('T')[0];}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function shuffle(a){var b=[...a];for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
+
+// ── TOAST ──
+function toast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=type==='error'?'#ef4444':type==='warn'?'#f59e0b':'#10b981';
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2400);
+}
+
+// ── NAVIGATION ──
+var pages=['home','library','drills','flashcard','journal','settings'];
+function showPage(name){
+  pages.forEach(function(p){
+    var pg=document.getElementById('pg-'+p);
+    var nb=document.getElementById('nav-'+p);
+    if(pg) pg.classList.remove('active');
+    if(nb) nb.classList.remove('active');
+  });
+  var pg=document.getElementById('pg-'+name);
+  var nb=document.getElementById('nav-'+name);
+  if(pg) pg.classList.add('active');
+  if(nb) nb.classList.add('active');
+  if(name==='home')       renderHome();
+  if(name==='library')    renderLib();
+  if(name==='drills')     renderDrills();
+  if(name==='flashcard')  initCards();
+  if(name==='journal')    renderJournal();
+  if(name==='settings')   renderSettings();
+}
+
+// ── HOME ──
+function renderHome(){
+  updateStreak();
+  renderWeek();
+  renderGoal();
+  renderCOTD();
+  renderStats();
+}
+
+function renderStats(){
+  document.getElementById('s-chunks').textContent=chunks.length;
+  document.getElementById('s-mastered').textContent=chunks.filter(function(c){return c.status==='mastered';}).length;
+  document.getElementById('s-sessions').textContent=sessions.length;
+  document.getElementById('s-streak').textContent=cfg.streak;
+  document.getElementById('streakBadge').textContent='🔥 '+cfg.streak+' days';
+}
+
+function updateStreak(){
+  var td=today();
+  var hasTodaySession=sessions.some(function(s){return s.date===td;});
+  if(!hasTodaySession) return;
+  if(cfg.lastDate===td) return;
+  var d=new Date(); d.setDate(d.getDate()-1);
+  var yd=d.toISOString().split('T')[0];
+  cfg.streak = (cfg.lastDate===yd) ? cfg.streak+1 : 1;
+  cfg.lastDate=td;
+  persist();
+}
+
+function renderWeek(){
+  var row=document.getElementById('weekRow');
+  var days=['S','M','T','W','T','F','S'];
+  var html='';
+  for(var i=6;i>=0;i--){
+    var d=new Date(); d.setDate(d.getDate()-i);
+    var ds=d.toISOString().split('T')[0];
+    var done=sessions.some(function(s){return s.date===ds;});
+    var cls=done?'w-done':(i===0?'w-today':'w-miss');
+    html+='<div class="w-dot '+cls+'">'+days[d.getDay()]+'</div>';
+  }
+  row.innerHTML=html;
+}
+
+function renderGoal(){
+  var td=today();
+  var mins=sessions.filter(function(s){return s.date===td;}).reduce(function(a,s){return a+(s.dur||0);},0);
+  var goal=cfg.goal||30;
+  var pct=Math.min(100,Math.round(mins/goal*100));
+  var h=new Date().getHours();
+  var gr=h<12?'☀️ Morning!':h<17?'🌤️ Afternoon!':'🌙 Evening!';
+  document.getElementById('homeGreet').textContent=gr+' '+mins+'/'+goal+' min today';
+  document.getElementById('goalBar').style.width=pct+'%';
+  document.getElementById('goalPct').textContent=pct+'%';
+}
+
+function renderCOTD(){
+  var el=document.getElementById('cotdBody');
+  if(!chunks.length){el.innerHTML='<p class="text-muted">Add chunks in Library first!</p>';return;}
+  var seed=new Date().toDateString();
+  var n=0; for(var i=0;i<seed.length;i++) n+=seed.charCodeAt(i);
+  var c=chunks[n%chunks.length];
+  el.innerHTML='<div class="chunk-phrase">"'+esc(c.phrase)+'"</div>'+
+    (c.meaning?'<div class="chunk-meaning">'+esc(c.meaning)+'</div>':'')+
+    (c.example?'<div class="chunk-example">'+esc(c.example)+'</div>':'')+
+    '<div class="chunk-meta"><span class="pill pill-'+c.status+'">'+c.status+'</span></div>';
+}
+
+function logSession(){
+  var m=prompt('Minutes practiced?','15');
+  if(!m) return;
+  sessions.push({id:uid(),date:today(),dur:parseInt(m)||0});
+  updateStreak();
+  persist();
+  renderHome();
+  toast('✅ '+m+' min logged!');
+}
+
+function quickAdd(){
+  var p=document.getElementById('qPhrase').value.trim();
+  if(!p){toast('Enter a phrase!','error');return;}
+  var m=document.getElementById('qMeaning').value.trim();
+  chunks.push({id:uid(),phrase:p,meaning:m,example:'',notes:'',category:'custom',situation:'any',status:'learning'});
+  persist();
+  document.getElementById('qPhrase').value='';
+  document.getElementById('qMeaning').value='';
+  renderStats();
+  toast('✅ Added!');
+}
+
+// ── LIBRARY ──
+var fCat='all', fStatus='all', fSit='all';
+
+var CATS={
+  all:'All',starter:'🗣️ Starters',opinion:'💭 Opinions',transition:'↔️ Transitions',
+  'buying-time':'⏳ Buying Time',agreement:'🤝 Agreement',clarification:'❓ Clarification',
+  emotion:'😊 Emotions',work:'💼 Work',social:'☕ Social',presentation:'📊 Presentation',
+  daily:'🌍 Daily',custom:'✏️ Custom'
+};
+var SITS={
+  any:'🌐 Any','work-meeting':'💼 Meeting',presentation:'📊 Presentation',
+  'casual-chat':'☕ Casual','interview':'👔 Interview','phone-call':'📱 Phone',
+  disagreement:'⚡ Disagree',networking:'🤝 Network',travel:'✈️ Travel'
+};
+var CAT_COLORS={
+  starter:'tag-blue',opinion:'tag-purple',transition:'tag-cyan','buying-time':'tag-yellow',
+  agreement:'tag-green',clarification:'tag-blue',emotion:'tag-pink',work:'tag-blue',
+  social:'tag-green',presentation:'tag-purple',daily:'tag-cyan',custom:'tag-yellow'
+};
+
+function renderLib(){
+  renderCatChips();
+  renderSitChips();
+  renderLibList();
+}
+
+function renderCatChips(){
+  var el=document.getElementById('catChips');
+  el.innerHTML=Object.keys(CATS).map(function(k){
+    return '<div class="chip'+(fCat===k?' active':'')+'" onclick="setCat(\''+k+'\')">'+CATS[k]+'</div>';
+  }).join('');
+}
+
+function renderSitChips(){
+  var el=document.getElementById('sitChips');
+  el.innerHTML='<div class="chip'+(fSit==='all'?' active':'')+'" onclick="setSit(\'all\')">All Situations</div>'+
+    Object.keys(SITS).filter(function(k){return k!=='any';}).map(function(k){
+      return '<div class="chip'+(fSit===k?' active':'')+'" onclick="setSit(\''+k+'\')">'+SITS[k]+'</div>';
+    }).join('');
+}
+
+function setCat(v){fCat=v;renderLib();}
+function setSit(v){fSit=v;renderLib();}
+
+function setChip(el,type,val,cb){
+  var parent=el.parentNode;
+  parent.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  if(type==='status') fStatus=val;
+  if(cb) cb();
+}
+
+function renderLibList(){
+  var q=(document.getElementById('searchBox').value||'').toLowerCase();
+  var list=document.getElementById('libList');
+  var filtered=chunks.filter(function(c){
+    var mc=fCat==='all'||c.category===fCat;
+    var ms=fStatus==='all'||c.status===fStatus;
+    var msi=fSit==='all'||c.situation===fSit||c.situation==='any';
+    var mq=!q||c.phrase.toLowerCase().includes(q)||(c.meaning||'').toLowerCase().includes(q)||(c.example||'').toLowerCase().includes(q);
+    return mc&&ms&&msi&&mq;
+  });
+  if(!filtered.length){list.innerHTML='<div class="empty">No chunks found. Try different filters or add new ones.</div>';return;}
+  list.innerHTML=filtered.map(function(c){
+    var col=CAT_COLORS[c.category]||'tag-yellow';
+    return '<div class="chunk-item">'+
+      '<div class="chunk-phrase">"'+esc(c.phrase)+'"</div>'+
+      (c.meaning?'<div class="chunk-meaning">'+esc(c.meaning)+'</div>':'')+
+      (c.example?'<div class="chunk-example">'+esc(c.example)+'</div>':'')+
+      (c.notes?'<div class="chunk-meaning" style="font-size:0.76rem;">📌 '+esc(c.notes)+'</div>':'')+
+      '<div class="chunk-meta">'+
+        '<span class="tag '+col+'">'+(CATS[c.category]||c.category)+'</span>'+
+        '<span class="tag tag-cyan">'+(SITS[c.situation]||c.situation)+'</span>'+
+        '<span class="pill pill-'+c.status+'">'+c.status+'</span>'+
+      '</div>'+
+      '<div class="chunk-actions">'+
+        '<button class="btn btn-gray btn-sm" onclick="openEditModal(\''+c.id+'\')">✏️ Edit</button>'+
+        '<select class="btn btn-sm" style="flex:0 0 auto;padding:5px;" onchange="setStatus(\''+c.id+'\',this.value)">'+
+          '<option value="learning"'+(c.status==='learning'?' selected':'')+'>Learning</option>'+
+          '<option value="practicing"'+(c.status==='practicing'?' selected':'')+'>Practicing</option>'+
+          '<option value="mastered"'+(c.status==='mastered'?' selected':'')+'>Mastered</option>'+
+        '</select>'+
+        '<button class="btn btn-danger btn-sm" onclick="delChunk(\''+c.id+'\')">🗑️</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function setStatus(id,val){
+  var c=chunks.find(function(x){return x.id===id;});
+  if(c){c.status=val;persist();renderLibList();toast('Updated!');}
+}
+
+function delChunk(id){
+  if(!confirm('Delete this chunk?')) return;
+  chunks=chunks.filter(function(c){return c.id!==id;});
+  persist();renderLibList();toast('Deleted','warn');
+}
+
+// ── MODAL ──
+function openModal(){
+  document.getElementById('modalTitle').textContent='➕ Add Chunk';
+  document.getElementById('editId').value='';
+  ['mPhrase','mMeaning','mExample','mNotes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('mCat').value='custom';
+  document.getElementById('mSit').value='any';
+  document.getElementById('mStatus').value='learning';
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEditModal(id){
+  var c=chunks.find(function(x){return x.id===id;});
+  if(!c) return;
+  document.getElementById('modalTitle').textContent='✏️ Edit Chunk';
+  document.getElementById('editId').value=id;
+  document.getElementById('mPhrase').value=c.phrase||'';
+  document.getElementById('mMeaning').value=c.meaning||'';
+  document.getElementById('mExample').value=c.example||'';
+  document.getElementById('mNotes').value=c.notes||'';
+  document.getElementById('mCat').value=c.category||'custom';
+  document.getElementById('mSit').value=c.situation||'any';
+  document.getElementById('mStatus').value=c.status||'learning';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+
+function saveChunk(){
+  var p=document.getElementById('mPhrase').value.trim();
+  if(!p){toast('Phrase required!','error');return;}
+  var id=document.getElementById('editId').value;
+  var data={phrase:p,meaning:document.getElementById('mMeaning').value.trim(),example:document.getElementById('mExample').value.trim(),notes:document.getElementById('mNotes').value.trim(),category:document.getElementById('mCat').value,situation:document.getElementById('mSit').value,status:document.getElementById('mStatus').value};
+  if(id){
+    var i=chunks.findIndex(function(c){return c.id===id;});
+    if(i>=0) chunks[i]=Object.assign({},chunks[i],data);
+    toast('✅ Updated!');
+  } else {
+    chunks.push(Object.assign({id:uid()},data));
+    toast('✅ Added!');
+  }
+  persist();closeModal();renderLibList();renderStats();
+}
+
+// Close modal on background click
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this) closeModal();});
+
+// ── DRILLS ──
+var WORDS={
+  daily:['coffee','morning','home','food','weather','weekend','family','money','time','sleep','phone','shopping','exercise','hobby','travel','city','health','music','book','cooking'],
+  work:['meeting','deadline','project','boss','email','presentation','team','report','feedback','client','budget','schedule','goal','problem','solution'],
+  feelings:['happy','stressed','excited','confused','tired','confident','nervous','proud','grateful','frustrated','curious','surprised','motivated','calm'],
+  opinions:['environment','technology','education','social media','future','culture','leadership','creativity','success','balance','challenge','opportunity']
+};
+var ROLEPLAYS={
+  'work-meeting':['Disagree politely with a colleague\'s idea.','Present your project update — progress and blockers.','Ask for clarification on a task assigned to you.','Summarize key action items at meeting end.'],
+  presentation:['Open your presentation confidently.','Explain a complex slide in simpler terms.','Handle a tough question you don\'t fully know.','Transition between two topics smoothly.'],
+  'casual-chat':['Meet a new colleague at lunch — start a chat.','Someone asks about your weekend. Answer naturally.','Talk about a movie or show you recently watched.','Invite a colleague for coffee.'],
+  interview:['Tell me about yourself. 1 minute.','Describe a challenge you solved.','Why do you want this role?','What is your greatest strength?'],
+  'phone-call':['Call to reschedule a meeting politely.','Report a problem and ask for help.','Follow up on an email you sent last week.'],
+  disagreement:['A teammate\'s mistake affects your work — address it.','Express disagreement with your manager professionally.','Receive criticism — respond professionally.'],
+  networking:['Introduce yourself memorably at an event.','Explain your job in plain English.','Keep the conversation going after introductions.'],
+  travel:['Ask for directions to a restaurant.','Check in at a hotel with a room problem.','Order food and ask about the menu.']
+};
+var TOPICS=['Describe your ideal weekend','Talk about a recent challenge at work','What would you change about your city?','A person who inspired you','Your view on remote work','Your favorite food and why','Your morning routine','Technology that changed your life','A goal for this year','A place you\'d love to visit','Your thoughts on social media','A book or movie you liked','Describe your job simply','A skill you wish you had','Something you changed your mind about'];
+
+var curDrillTab='word';
+var curChunkDrillId=null;
+
+function renderDrills(){
+  newWord();
+  renderSitGrid();
+  newTopic();
+}
+
+function switchTab(name,el){
+  ['word','chunk','situation','timer'].forEach(function(t){
+    document.getElementById('tab-'+t).style.display='none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+name).style.display='block';
+  el.classList.add('active');
+  curDrillTab=name;
+}
+
+function newWord(){
+  var all=[];
+  Object.values(WORDS).forEach(function(arr){all=all.concat(arr);});
+  var w=all[Math.floor(Math.random()*all.length)];
+  document.getElementById('dWord').textContent=w;
+  document.getElementById('dWordSub').textContent='Speak 3 sentences using "'+w+'" — no Chinese!';
+}
+
+function newChunkDrill(){
+  var pool=chunks.filter(function(c){return c.status!=='mastered';});
+  if(!pool.length){pool=chunks;}
+  if(!pool.length){toast('Add chunks in Library first!','error');return;}
+  var c=pool[Math.floor(Math.random()*pool.length)];
+  curChunkDrillId=c.id;
+  document.getElementById('cdPhrase').textContent='"'+c.phrase+'"';
+  document.getElementById('cdExample').textContent=c.example||'(No example yet)';
+  document.getElementById('cdInput').value='';
+  document.getElementById('chunkDrillBox').style.display='block';
+}
+
+function doneChunkDrill(){
+  var inp=document.getElementById('cdInput').value.trim();
+  if(!inp){toast('Write your sentence first!','warn');return;}
+  if(curChunkDrillId){
+    var c=chunks.find(function(x){return x.id===curChunkDrillId;});
+    if(c&&c.status==='learning'){c.status='practicing';persist();}
+  }
+  toast('🎉 Great practice!');
+  newChunkDrill();
+}
+
+function renderSitGrid(){
+  var grid=document.getElementById('sitGrid');
+  var sits=[
+    {k:'work-meeting',i:'💼',n:'Work Meeting'},
+    {k:'presentation',i:'📊',n:'Presentation'},
+    {k:'casual-chat',i:'☕',n:'Casual Chat'},
+    {k:'interview',i:'👔',n:'Interview'},
+    {k:'phone-call',i:'📱',n:'Phone Call'},
+    {k:'disagreement',i:'⚡',n:'Disagreement'},
+    {k:'networking',i:'🤝',n:'Networking'},
+    {k:'travel',i:'✈️',n:'Travel'}
+  ];
+  grid.innerHTML=sits.map(function(s){
+    var cnt=chunks.filter(function(c){return c.situation===s.k;}).length;
+    return '<div class="sit-card" onclick="openSitDetail(\''+s.k+'\',\''+s.i+' '+s.n+'\')">'+
+      '<div class="sit-icon">'+s.i+'</div>'+
+      '<div class="sit-name">'+s.n+'</div>'+
+      '<div class="sit-count">'+cnt+' chunks</div>'+
+    '</div>';
+  }).join('');
+}
+
+var curSitKey='';
+function openSitDetail(key,label){
+  curSitKey=key;
+  document.getElementById('sitGrid').style.display='none';
+  document.getElementById('sitDetail').style.display='block';
+  document.getElementById('sitDetailTitle').textContent=label;
+  var sc=chunks.filter(function(c){return c.situation===key||c.situation==='any';});
+  var el=document.getElementById('sitDetailChunks');
+  if(sc.length){
+    el.innerHTML='<div class="card"><div class="card-title">📚 Chunks for this situation</div>'+
+      sc.map(function(c){return '<div class="chunk-item"><div class="chunk-phrase">"'+esc(c.phrase)+'"</div>'+(c.example?'<div class="chunk-example">'+esc(c.example)+'</div>':'')+'</div>';}).join('')+'</div>';
+  } else {
+    el.innerHTML='<div class="card"><p class="text-muted">No chunks for this situation yet. Add some in Library!</p></div>';
+  }
+  newRoleplay();
+}
+
+function closeSitDetail(){
+  document.getElementById('sitGrid').style.display='grid';
+  document.getElementById('sitDetail').style.display='none';
+}
+
+function newRoleplay(){
+  var prompts=ROLEPLAYS[curSitKey]||['Speak freely about this situation for 1 minute.'];
+  document.getElementById('sitRoleplay').textContent=prompts[Math.floor(Math.random()*prompts.length)];
+}
+
+// TIMER
+var timerSec=0,timerTarget=0,timerRunning=false,timerInt=null;
+
+function timerToggle(){
+  if(timerRunning){
+    clearInterval(timerInt);timerRunning=false;
+    document.getElementById('timerBtn').textContent='▶ Resume';
+  } else {
+    timerRunning=true;
+    document.getElementById('timerBtn').textContent='⏸ Pause';
+    timerInt=setInterval(function(){
+      timerSec++;updateTimerDisplay();
+      if(timerTarget&&timerSec>=timerTarget){
+        clearInterval(timerInt);timerRunning=false;
+        document.getElementById('timerBtn').textContent='▶ Start';
+        toast("⏰ Time's up! Great job!");
+      }
+    },1000);
+  }
+}
+
+function timerReset(){
+  clearInterval(timerInt);timerRunning=false;timerSec=0;
+  document.getElementById('timerBtn').textContent='▶ Start';
+  updateTimerDisplay();
+}
+
+function setTarget(s){
+  timerTarget=s;
+  document.getElementById('timerProg').style.display='block';
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay(){
+  var m=String(Math.floor(timerSec/60)).padStart(2,'0');
+  var s=String(timerSec%60).padStart(2,'0');
+  document.getElementById('timerDisp').textContent=m+':'+s;
+  if(timerTarget){
+    var pct=Math.min(100,Math.round(timerSec/timerTarget*100));
+    document.getElementById('timerProgBar').style.width=pct+'%';
+    document.getElementById('timerProgLbl').textContent=timerSec+'s / '+timerTarget+'s';
+    document.getElementById('timerProgPct').textContent=pct+'%';
+  }
+}
+
+function newTopic(){
+  document.getElementById('topicDisp').textContent='"'+TOPICS[Math.floor(Math.random()*TOPICS.length)]+'"';
+}
+
+// ── FLASHCARDS ──
+var fcDeck=[],fcIdx=0,fcFilter='all',fcFlipped=false;
+
+function setFcFilter(el,val){
+  fcFilter=val;
+  document.querySelectorAll('#fcFilterChips .chip').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  initCards();
+}
+
+function initCards(){
+  var pool=fcFilter==='all'?chunks:chunks.filter(function(c){return c.status===fcFilter;});
+  fcDeck=shuffle(pool);
+  fcIdx=0;fcFlipped=false;
+  document.getElementById('fcWrap').classList.remove('flipped');
+  showCard();
+}
+
+function showCard(){
+  document.getElementById('fcCounter').textContent=(fcDeck.length?fcIdx+1:0)+'/'+fcDeck.length;
+  if(!fcDeck.length){
+    document.getElementById('fcFront').textContent='No chunks';
+    document.getElementById('fcBack').textContent='Add chunks first';
+    return;
+  }
+  var c=fcDeck[fcIdx];
+  document.getElementById('fcFront').textContent='"'+c.phrase+'"';
+  var back='';
+  if(c.meaning) back+='<strong>'+esc(c.meaning)+'</strong><br><br>';
+  if(c.example) back+='<em>'+esc(c.example)+'</em>';
+  if(c.notes)   back+='<br><br>📌 '+esc(c.notes);
+  document.getElementById('fcBack').innerHTML=back||'(No meaning/example saved)';
+  fcFlipped=false;
+  document.getElementById('fcWrap').classList.remove('flipped');
+}
+
+function flipCard(){
+  fcFlipped=!fcFlipped;
+  document.getElementById('fcWrap').classList.toggle('flipped',fcFlipped);
+}
+
+function rateCard(status){
+  if(!fcDeck.length) return;
+  var c=fcDeck[fcIdx];
+  var orig=chunks.find(function(x){return x.id===c.id;});
+  if(orig){orig.status=status;persist();}
+  fcIdx=(fcIdx+1)%fcDeck.length;
+  showCard();
+  var msg=status==='mastered'?'🎉 Mastered!':status==='practicing'?'💪 Keep going!':'📖 Keep learning!';
+  toast(msg);
+}
+
+// ── JOURNAL ──
+var mood='3';
+function setMood(el,val){
+  mood=val;
+  document.querySelectorAll('#moodChips .chip').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+}
+
+function saveJournal(){
+  var p=document.getElementById('jPracticed').value.trim();
+  if(!p){toast('What did you practice?','error');return;}
+  journals.unshift({
+    id:uid(),date:today(),
+    dateDisplay:new Date().toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'}),
+    practiced:p,
+    chunks:document.getElementById('jChunks').value.trim(),
+    diff:document.getElementById('jDiff').value.trim(),
+    wins:document.getElementById('jWins').value.trim(),
+    mood:mood
+  });
+  persist();
+  ['jPracticed','jChunks','jDiff','jWins'].forEach(function(id){document.getElementById(id).value='';});
+  renderJournal();
+  toast('📝 Saved!');
+}
+
+function renderJournal(){
+  document.getElementById('jCount').textContent=journals.length+' entries';
+  var el=document.getElementById('jList');
+  if(!journals.length){el.innerHTML='<div class="empty">No entries yet. Start logging!</div>';return;}
+  el.innerHTML=journals.map(function(j){
+    return '<div class="j-entry">'+
+      '<div class="j-date">'+(j.dateDisplay||j.date)+' · Mood: '+'⭐'.repeat(parseInt(j.mood)||3)+'</div>'+
+      '<div class="j-body">'+
+        '<strong>✅ Practiced:</strong> '+esc(j.practiced)+'<br>'+
+        (j.chunks?'<strong>💬 Chunks:</strong> '+esc(j.chunks)+'<br>':'')+
+        (j.diff?'<strong>😬 Difficulties:</strong> '+esc(j.diff)+'<br>':'')+
+        (j.wins?'<strong>🏆 Wins:</strong> '+esc(j.wins):'')+'</div>'+
+      '<button class="btn btn-danger btn-sm" style="margin-top:8px;" onclick="delJournal(\''+j.id+'\')">🗑️ Delete</button>'+
+    '</div>';
+  }).join('');
+}
+
+function delJournal(id){
+  if(!confirm('Delete this entry?')) return;
+  journals=journals.filter(function(j){return j.id!==id;});
+  persist();renderJournal();
+}
+
+// ── SETTINGS ──
+function renderSettings(){
+  document.getElementById('goalInput').value=cfg.goal||30;
+  var total=chunks.length;
+  var mas=chunks.filter(function(c){return c.status==='mastered';}).length;
+  var prac=chunks.filter(function(c){return c.status==='practicing';}).length;
+  var lrn=chunks.filter(function(c){return c.status==='learning';}).length;
+  function pct(n){return total?Math.round(n/total*100):0;}
+  document.getElementById('progSummary').innerHTML=
+    '<div class="prog-wrap"><div class="prog-labels"><span>Mastered</span><span>'+mas+'/'+total+'</span></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct(mas)+'%;background:var(--success);"></div></div></div>'+
+    '<div class="prog-wrap"><div class="prog-labels"><span>Practicing</span><span>'+prac+'/'+total+'</span></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct(prac)+'%;"></div></div></div>'+
+    '<div class="prog-wrap"><div class="prog-labels"><span>Learning</span><span>'+lrn+'/'+total+'</span></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct(lrn)+'%;background:var(--warning);"></div></div></div>'+
+    '<div class="divider"></div><p class="text-muted">Sessions: '+sessions.length+' · Journal: '+journals.length+' · Streak: '+cfg.streak+' days</p>';
+}
+
+function saveGoal(){
+  var v=parseInt(document.getElementById('goalInput').value);
+  if(v>0){cfg.goal=v;persist();toast('✅ Goal saved!');}
+}
+
+function exportData(){
+  var d={chunks:chunks,sessions:sessions,journals:journals,cfg:cfg,exported:new Date().toISOString()};
+  var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(b);
+  a.download='english-trainer-'+today()+'.json';
+  a.click();
+  toast('📦 Exported!');
+}
+
+function importData(e){
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    try{
+      var d=JSON.parse(ev.target.result);
+      if(d.chunks) chunks=d.chunks;
+      if(d.sessions) sessions=d.sessions;
+      if(d.journals) journals=d.journals;
+      if(d.cfg) cfg=d.cfg;
+      persist();renderHome();toast('✅ Imported!');
+    }catch(err){toast('Import failed!','error');}
+  };
+  r.readAsText(file);
+}
+
+function clearData(){
+  if(!confirm('Clear ALL data? Cannot undo!')) return;
+  chunks=[];sessions=[];journals=[];cfg={goal:30,streak:0,lastDate:''};
+  persist();renderHome();toast('Cleared','warn');
+}
+
+// ── BUILT-IN CHUNKS ──
+function loadBuiltIn(){
+  if(!confirm('Add 40+ starter chunks? Will not delete existing ones.')) return;
+  var list=[
+    {phrase:'To be honest,',meaning:'说实话',example:'To be honest, I wasn\'t sure about the plan.',category:'starter',situation:'any'},
+    {phrase:'The thing is,',meaning:'关键是',example:'The thing is, we don\'t have enough time.',category:'starter',situation:'any'},
+    {phrase:'What I mean is,',meaning:'我的意思是',example:'What I mean is, we need a better approach.',category:'starter',situation:'any'},
+    {phrase:'As far as I know,',meaning:'据我所知',example:'As far as I know, the meeting is at 3.',category:'starter',situation:'any'},
+    {phrase:'The way I see it,',meaning:'在我看来',example:'The way I see it, both options have merit.',category:'starter',situation:'any'},
+    {phrase:'If I\'m being honest,',meaning:'坦白说',example:'If I\'m being honest, I think we need more time.',category:'starter',situation:'any'},
+    {phrase:'In my view,',meaning:'在我看来',example:'In my view, remote work is more productive.',category:'opinion',situation:'any'},
+    {phrase:'I tend to think that',meaning:'我倾向于认为',example:'I tend to think that communication is key.',category:'opinion',situation:'any'},
+    {phrase:'Personally speaking,',meaning:'就个人而言',example:'Personally speaking, I prefer face-to-face meetings.',category:'opinion',situation:'any'},
+    {phrase:'From my perspective,',meaning:'从我角度来看',example:'From my perspective, the data tells a different story.',category:'opinion',situation:'work-meeting'},
+    {phrase:'Having said that,',meaning:'话虽如此',example:'Having said that, I still think we should try.',category:'transition',situation:'any'},
+    {phrase:'On top of that,',meaning:'除此之外',example:'On top of that, the cost is much lower.',category:'transition',situation:'any'},
+    {phrase:'That being said,',meaning:'尽管如此',example:'That being said, let\'s move forward.',category:'transition',situation:'work-meeting'},
+    {phrase:'With that in mind,',meaning:'考虑到这点',example:'With that in mind, I\'d suggest we start small.',category:'transition',situation:'any'},
+    {phrase:'At the same time,',meaning:'同时',example:'At the same time, we need to monitor the risks.',category:'transition',situation:'any'},
+    {phrase:'Let me think about that...',meaning:'让我想想',example:'That\'s complex — let me think about that.',category:'buying-time',situation:'any'},
+    {phrase:'How should I put it...',meaning:'我该怎么说呢',example:'How should I put it... it\'s complicated.',category:'buying-time',situation:'any'},
+    {phrase:'That\'s a good question.',meaning:'这是个好问题',example:'That\'s a good question. I\'d say the main issue is...',category:'buying-time',situation:'any'},
+    {phrase:'What I\'m trying to say is,',meaning:'我想说的是',example:'What I\'m trying to say is, we need more resources.',category:'buying-time',situation:'any'},
+    {phrase:'I couldn\'t agree more.',meaning:'我完全同意',example:'I couldn\'t agree more — this needs to change.',category:'agreement',situation:'any'},
+    {phrase:'I see your point, but...',meaning:'我明白你意思，但',example:'I see your point, but the timeline is too tight.',category:'agreement',situation:'work-meeting'},
+    {phrase:'I\'m not entirely convinced that',meaning:'我不完全信服',example:'I\'m not entirely convinced that this will work.',category:'agreement',situation:'work-meeting'},
+    {phrase:'I\'d push back on that a little.',meaning:'我对此有点异议',example:'I\'d push back on that — the data says otherwise.',category:'agreement',situation:'work-meeting'},
+    {phrase:'Could you elaborate on that?',meaning:'能详细说明吗？',example:'That\'s interesting — could you elaborate on that?',category:'clarification',situation:'work-meeting'},
+    {phrase:'What do you mean by...?',meaning:'你说的...是什么意思？',example:'What do you mean by "insufficient resources"?',category:'clarification',situation:'any'},
+    {phrase:'Just to make sure I understand,',meaning:'为了确认我理解正确',example:'Just to make sure I understand — you want me to lead this?',category:'clarification',situation:'work-meeting'},
+    {phrase:'Let me bring you up to speed.',meaning:'让我给你介绍一下情况',example:'I know you just joined — let me bring you up to speed.',category:'work',situation:'work-meeting'},
+    {phrase:'I\'ll circle back to you on that.',meaning:'我稍后跟你确认',example:'I don\'t have the numbers now. I\'ll circle back to you.',category:'work',situation:'work-meeting'},
+    {phrase:'Let\'s take this offline.',meaning:'我们私下讨论',example:'This is getting complex — let\'s take this offline.',category:'work',situation:'work-meeting'},
+    {phrase:'To summarize what we\'ve discussed,',meaning:'总结一下我们讨论的',example:'To summarize what we\'ve discussed, we have three action items.',category:'work',situation:'presentation'},
+    {phrase:'I\'d like to flag a concern.',meaning:'我想提出一个顾虑',example:'Before we move on, I\'d like to flag a concern.',category:'work',situation:'work-meeting'},
+    {phrase:'What do you get up to?',meaning:'你平时做什么？',example:'When you\'re not at work, what do you get up to?',category:'social',situation:'casual-chat'},
+    {phrase:'That makes two of us!',meaning:'我也一样！',example:'"I hate Mondays." "That makes two of us!"',category:'social',situation:'casual-chat'},
+    {phrase:'I know the feeling.',meaning:'我懂那种感觉',example:'"I\'m so tired." "I know the feeling!"',category:'social',situation:'casual-chat'},
+    {phrase:'Tell me more about that.',meaning:'跟我多说说',example:'Oh interesting, tell me more about that.',category:'social',situation:'casual-chat'},
+    {phrase:'I\'d like to start by...',meaning:'我想先从...开始',example:'I\'d like to start by giving you some background.',category:'presentation',situation:'presentation'},
+    {phrase:'Moving on to my next point,',meaning:'接下来说下一个观点',example:'Moving on to my next point, let\'s look at the data.',category:'presentation',situation:'presentation'},
+    {phrase:'As you can see from this chart,',meaning:'如您从图表中看到的',example:'As you can see from this chart, growth has been steady.',category:'presentation',situation:'presentation'},
+    {phrase:'To wrap up,',meaning:'最后总结',example:'To wrap up, here are our three key takeaways.',category:'presentation',situation:'presentation'},
+    {phrase:'I\'ve always been passionate about',meaning:'我一直对...充满热情',example:'I\'ve always been passionate about solving complex problems.',category:'work',situation:'interview'},
+    {phrase:'In my previous role, I...',meaning:'在我上一份工作中',example:'In my previous role, I managed a team of five.',category:'work',situation:'interview'},
+    {phrase:'One thing I\'m proud of is',meaning:'我引以为豪的是',example:'One thing I\'m proud of is how I handled that project.',category:'work',situation:'interview'}
+  ];
+  var added=0;
+  list.forEach(function(b){
+    if(!chunks.some(function(c){return c.phrase.toLowerCase()===b.phrase.toLowerCase();})){
+      chunks.push(Object.assign({id:uid(),status:'learning'},b));
+      added++;
+    }
+  });
+  persist();renderLibList();renderStats();
+  toast('✅ Added '+added+' chunks!');
+}
+
+// ── INIT ──
+renderHome();
+</script>
+</body>
+</html>
