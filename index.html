@@ -547,33 +547,93 @@ label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margi
 <!-- YOUGLISH MODAL -->
 <div class="yg-modal-bg" id="ygModal">
   <div class="yg-box">
+
+    <!-- Header -->
     <div class="yg-header">
-      <div class="yg-title">🎬 YouGlish — Real Examples</div>
+      <div class="yg-title">🎬 YouGlish Pronunciation</div>
       <button class="btn btn-gray btn-sm" onclick="closeYG()">✕ Close</button>
     </div>
+
+    <!-- Phrase display -->
     <div class="yg-phrase" id="ygPhrase"></div>
-    <div class="yg-frame-wrap">
-      <iframe
-        id="ygFrame"
-        src=""
-        allow="autoplay; encrypted-media"
-        allowfullscreen>
-      </iframe>
+
+    <!-- iPhone notice -->
+    <div style="background:#1e3a8a;border:1px solid #3b82f6;border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:1.5rem;margin-bottom:6px;">📱</div>
+      <div style="font-size:0.88rem;font-weight:700;color:#93c5fd;margin-bottom:6px;">
+        Tap a button below to hear real pronunciation
+      </div>
+      <div style="font-size:0.78rem;color:var(--text2);line-height:1.6;">
+        Opens YouGlish in your browser with real native speakers.<
+        Press back when done to return to the app.
+      </div>
     </div>
-    <div class="yg-tip">
-      💡 Real native speakers using this phrase in context.<br>
-      Use ▶ Next on the player to see more examples.
+
+    <!-- Main open button -->
+    <a id="yg-main-link"
+       href="#"
+       target="_blank"
+       class="btn btn-youglish btn-full"
+       style="margin-bottom:12px;text-decoration:none;font-size:0.95rem;">
+      🎬 Open YouGlish — Hear Real Speakers
+    </a>
+
+    <!-- Accent buttons -->
+    <div style="font-size:0.78rem;color:var(--text2);margin-bottom:8px;text-align:center;">
+      Choose accent:
     </div>
-    <div class="yg-actions">
-      <button class="btn btn-youglish" style="flex:1;" onclick="ygAccent('us')">🇺🇸 US</button>
-      <button class="btn btn-youglish" style="flex:1;" onclick="ygAccent('uk')">🇬🇧 UK</button>
-      <button class="btn btn-youglish" style="flex:1;" onclick="ygAccent('aus')">🇦🇺 AUS</button>
+    <div class="yg-actions" style="margin-bottom:14px;">
+      <a id="yg-link-us"
+         href="#"
+         target="_blank"
+         class="btn btn-youglish"
+         style="flex:1;text-decoration:none;justify-content:center;">
+        🇺🇸 US
+      </a>
+      <a id="yg-link-uk"
+         href="#"
+         target="_blank"
+         class="btn btn-youglish"
+         style="flex:1;text-decoration:none;justify-content:center;">
+        🇬🇧 UK
+      </a>
+      <a id="yg-link-aus"
+         href="#"
+         target="_blank"
+         class="btn btn-youglish"
+         style="flex:1;text-decoration:none;justify-content:center;">
+        🇦🇺 AUS
+      </a>
     </div>
-    <div class="yg-actions">
-      <button class="btn btn-tts btn-full" id="ygTtsBtn" onclick="speakPhrase()">
-        🔊 Read Aloud (Offline)
-      </button>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- How to use steps -->
+    <div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text2);margin-bottom:8px;">
+        HOW TO USE
+      </div>
+      <div style="font-size:0.82rem;color:var(--text);line-height:2;">
+        1️⃣ Tap an accent button above<br>
+        2️⃣ YouGlish opens in browser<br>
+        3️⃣ Watch + listen to real speakers<br>
+        4️⃣ Tap ▶ Next for more examples<br>
+        5️⃣ Press back to return to app
+      </div>
     </div>
+
+    <!-- TTS as backup -->
+    <div style="font-size:0.78rem;color:var(--text2);margin-bottom:6px;text-align:center;">
+      Or hear AI pronunciation without internet:
+    </div>
+    <button
+      class="btn btn-tts btn-full"
+      id="ygTtsBtn"
+      onclick="speakPhrase()">
+      🔊 AI Voice (Offline)
+    </button>
+
   </div>
 </div>
   
@@ -1256,16 +1316,30 @@ var ygCurrentAccent = 'us';
 function openYG(phrase, example) {
   ygCurrentPhrase = phrase;
   ygCurrentAccent = 'us';
-
-  // Show modal
   document.getElementById('ygModal').classList.add('open');
-
-  // Display phrase label
   document.getElementById('ygPhrase').textContent =
     '"' + phrase + '"' + (example ? ' — e.g. ' + example : '');
 
-  // Load YouGlish embed
-  loadYGFrame(phrase, 'us');
+  // Set all accent links
+  updateYGLinks(phrase);
+}
+
+function updateYGLinks(phrase) {
+  var encoded = encodeURIComponent(phrase);
+  var accents = ['us', 'uk', 'aus'];
+  accents.forEach(function(acc) {
+    var btn = document.getElementById('yg-link-' + acc);
+    if (btn) {
+      btn.href = 'https://youglish.com/pronounce/' +
+                 encoded + '/english/' + acc;
+    }
+  });
+  // Also update the main open button
+  var mainBtn = document.getElementById('yg-main-link');
+  if (mainBtn) {
+    mainBtn.href = 'https://youglish.com/pronounce/' +
+                   encoded + '/english/us';
+  }
 }
 
 function quickSpeak(phrase) {
