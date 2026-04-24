@@ -217,6 +217,66 @@ label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margi
   background:linear-gradient(135deg,#1a73e8,#4285f4);
   color:#fff;
 }
+
+/* VOCAB CARD */
+.vocab-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px;
+  margin-bottom:9px;
+}
+.vocab-word{
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:2px;
+}
+.vocab-type{
+  display:inline-block;
+  font-size:0.72rem;
+  font-weight:700;
+  padding:2px 9px;
+  border-radius:20px;
+  margin-bottom:8px;
+}
+.vtype-noun{background:#1e3a8a;color:#93c5fd;}
+.vtype-verb{background:#064e3b;color:#6ee7b7;}
+.vtype-adjective{background:#3b0764;color:#d8b4fe;}
+.vtype-adverb{background:#78350f;color:#fcd34d;}
+.vtype-phrase{background:#831843;color:#fbcfe8;}
+.vtype-other{background:#1e293b;color:#94a3b8;}
+.vocab-def{
+  font-size:0.85rem;
+  line-height:1.6;
+  color:var(--text);
+  margin-bottom:7px;
+}
+.vocab-example{
+  font-size:0.82rem;
+  color:var(--primary-light);
+  font-style:italic;
+  padding-left:9px;
+  border-left:2px solid var(--primary);
+  margin-bottom:7px;
+  line-height:1.5;
+}
+.vocab-related{
+  font-size:0.8rem;
+  color:var(--text2);
+  margin-bottom:8px;
+}
+.vocab-source{
+  font-size:0.72rem;
+  color:var(--text2);
+  margin-bottom:8px;
+}
+.vocab-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
   
 </style>
 </head>
@@ -273,23 +333,119 @@ label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margi
 
 <!-- PAGE: LIBRARY -->
 <div class="page" id="pg-library">
-  <div class="sec-header">
-    <h2>📚 Chunk Library</h2>
-    <button class="btn btn-primary btn-sm" onclick="openModal()">＋ Add</button>
+
+  <!-- Toggle Tabs -->
+  <div class="tabs" style="margin-bottom:14px;">
+    <button class="tab-btn active" id="libTab-chunks"
+      onclick="switchLibTab('chunks',this)">
+      📚 Chunks
+    </button>
+    <button class="tab-btn" id="libTab-vocab"
+      onclick="switchLibTab('vocab',this)">
+      📖 Vocabulary
+    </button>
   </div>
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchBox" placeholder="Search..." oninput="renderLib()"/>
+
+  <!-- CHUNKS SECTION -->
+  <div id="libSection-chunks">
+    <div class="sec-header">
+      <h2>📚 Chunk Library</h2>
+      <button class="btn btn-primary btn-sm" onclick="openModal()">＋ Add</button>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchBox" placeholder="Search chunks..."
+        oninput="renderLib()"/>
+    </div>
+    <div class="chips" id="catChips"></div>
+    <div class="chips" id="statusChips">
+      <div class="chip active"
+        onclick="setChip(this,'status','all',renderLib)">All</div>
+      <div class="chip"
+        onclick="setChip(this,'status','learning',renderLib)">Learning</div>
+      <div class="chip"
+        onclick="setChip(this,'status','practicing',renderLib)">Practicing</div>
+      <div class="chip"
+        onclick="setChip(this,'status','mastered',renderLib)">Mastered</div>
+    </div>
+    <div class="chips" id="sitChips"></div>
+    <div id="libList"></div>
   </div>
-  <div class="chips" id="catChips"></div>
-  <div class="chips" id="statusChips">
-    <div class="chip active" onclick="setChip(this,'status','all',renderLib)">All</div>
-    <div class="chip" onclick="setChip(this,'status','learning',renderLib)">Learning</div>
-    <div class="chip" onclick="setChip(this,'status','practicing',renderLib)">Practicing</div>
-    <div class="chip" onclick="setChip(this,'status','mastered',renderLib)">Mastered</div>
+
+  <!-- VOCAB SECTION -->
+  <div id="libSection-vocab" style="display:none;">
+    <div class="sec-header">
+      <h2>📖 Vocabulary</h2>
+      <button class="btn btn-primary btn-sm"
+        onclick="openVocabModal()">＋ Add Word</button>
+    </div>
+
+    <!-- Quick Add Bar -->
+    <div class="card">
+      <div class="card-title">⚡ Quick Capture</div>
+      <div class="row">
+        <input type="text" id="quickVocabInput"
+          placeholder="Type word here..."/>
+        <button class="btn btn-primary"
+          style="flex:0 0 auto;"
+          onclick="quickAddVocab()">Add</button>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text2);margin-top:6px;">
+        💡 Quick save now → fill details later
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="vocabSearch"
+        placeholder="Search vocabulary..."
+        oninput="renderVocab()"/>
+    </div>
+
+    <!-- Filters -->
+    <div class="chips" id="vocabStatusChips">
+      <div class="chip active"
+        onclick="setVocabFilter(this,'all')">All</div>
+      <div class="chip"
+        onclick="setVocabFilter(this,'learning')">Learning</div>
+      <div class="chip"
+        onclick="setVocabFilter(this,'practicing')">Practicing</div>
+      <div class="chip"
+        onclick="setVocabFilter(this,'mastered')">Mastered</div>
+    </div>
+
+    <div class="chips" id="vocabTypeChips">
+      <div class="chip active"
+        onclick="setVocabTypeFilter(this,'all')">All Types</div>
+      <div class="chip"
+        onclick="setVocabTypeFilter(this,'noun')">Noun</div>
+      <div class="chip"
+        onclick="setVocabTypeFilter(this,'verb')">Verb</div>
+      <div class="chip"
+        onclick="setVocabTypeFilter(this,'adjective')">Adjective</div>
+      <div class="chip"
+        onclick="setVocabTypeFilter(this,'adverb')">Adverb</div>
+      <div class="chip"
+        onclick="setVocabTypeFilter(this,'phrase')">Phrase</div>
+      <div class="chip"
+        onclick="setVocabTypeFilter(this,'other')">Other</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" style="margin-bottom:12px;">
+      <div class="stat-box">
+        <div class="stat-num" id="vStatTotal">0</div>
+        <div class="stat-lbl">Total Words</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="vStatMastered">0</div>
+        <div class="stat-lbl">Mastered</div>
+      </div>
+    </div>
+
+    <div id="vocabList"></div>
   </div>
-  <div class="chips" id="sitChips"></div>
-  <div id="libList"></div>
 </div>
 
 <!-- PAGE: DRILLS -->
@@ -497,6 +653,60 @@ label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:5px;margi
   </button>
 </nav>
 
+<!-- VOCAB MODAL -->
+<div class="modal-bg" id="vocabModal">
+  <div class="modal-box">
+    <h2 id="vocabModalTitle">📖 Add Word</h2>
+    <input type="hidden" id="vocabEditId"/>
+
+    <label>Word / Term *</label>
+    <input type="text" id="vWord"
+      placeholder="e.g. ambiguous"/>
+
+    <label>Word Type</label>
+    <select id="vType">
+      <option value="noun">📦 Noun</option>
+      <option value="verb">⚡ Verb</option>
+      <option value="adjective">🎨 Adjective</option>
+      <option value="adverb">🏃 Adverb</option>
+      <option value="phrase">💬 Phrase</option>
+      <option value="other">📌 Other</option>
+    </select>
+
+    <label>Definition (English)</label>
+    <textarea id="vDefinition"
+      placeholder="e.g. Open to more than one interpretation; not clear or decided."
+      rows="2"></textarea>
+
+    <label>Example Sentence</label>
+    <textarea id="vExample"
+      placeholder="e.g. The instructions were ambiguous and caused confusion."
+      rows="2"></textarea>
+
+    <label>Related Words / Synonyms</label>
+    <input type="text" id="vRelated"
+      placeholder="e.g. unclear, vague, uncertain, confusing"/>
+
+    <label>Source (where you found it)</label>
+    <input type="text" id="vSource"
+      placeholder="e.g. BBC article, Work email, Netflix show"/>
+
+    <label>Status</label>
+    <select id="vStatus">
+      <option value="learning">Learning</option>
+      <option value="practicing">Practicing</option>
+      <option value="mastered">Mastered</option>
+    </select>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary"
+        style="flex:1;" onclick="saveVocab()">💾 Save</button>
+      <button class="btn btn-gray"
+        onclick="closeMod('vocabModal')">Cancel</button>
+    </div>
+  </div>
+</div>  
+  
 <!-- ADD/EDIT MODAL -->
 <div class="modal-bg" id="modal">
   <div class="modal-box">
@@ -1495,7 +1705,279 @@ function speakPhrase() {
 document.getElementById('ygModal').addEventListener('click', function(e) {
   if (e.target === this) closeYG();
 });
-  
+// ── LIBRARY TAB TOGGLE ──
+var currentLibTab = 'chunks';
+
+function switchLibTab(tab, el) {
+  currentLibTab = tab;
+  // toggle sections
+  document.getElementById('libSection-chunks').style.display =
+    tab === 'chunks' ? 'block' : 'none';
+  document.getElementById('libSection-vocab').style.display =
+    tab === 'vocab' ? 'block' : 'none';
+  // toggle tab buttons
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  el.classList.add('active');
+  if (tab === 'vocab') renderVocab();
+}
+
+// ── VOCAB DATA ──
+var vocabs = load('et_vocabs', []);
+var vocabStatusFilter = 'all';
+var vocabTypeFilter = 'all';
+
+function persistVocab() {
+  save('et_vocabs', vocabs);
+}
+
+// ── VOCAB FILTERS ──
+function setVocabFilter(el, val) {
+  vocabStatusFilter = val;
+  document.querySelectorAll('#vocabStatusChips .chip')
+    .forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  renderVocab();
+}
+
+function setVocabTypeFilter(el, val) {
+  vocabTypeFilter = val;
+  document.querySelectorAll('#vocabTypeChips .chip')
+    .forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  renderVocab();
+}
+
+// ── VOCAB TYPE LABELS ──
+var VTYPE_LABELS = {
+  noun:      {label:'Noun',      cls:'vtype-noun'},
+  verb:      {label:'Verb',      cls:'vtype-verb'},
+  adjective: {label:'Adjective', cls:'vtype-adjective'},
+  adverb:    {label:'Adverb',    cls:'vtype-adverb'},
+  phrase:    {label:'Phrase',    cls:'vtype-phrase'},
+  other:     {label:'Other',     cls:'vtype-other'},
+};
+
+// ── RENDER VOCAB ──
+function renderVocab() {
+  var el = document.getElementById('vocabList');
+  var q = (document.getElementById('vocabSearch').value || '')
+            .toLowerCase();
+
+  // update stats
+  document.getElementById('vStatTotal').textContent = vocabs.length;
+  document.getElementById('vStatMastered').textContent =
+    vocabs.filter(function(v) {
+      return v.status === 'mastered';
+    }).length;
+
+  // filter
+  var filtered = vocabs.filter(function(v) {
+    var ms = vocabStatusFilter === 'all' ||
+             v.status === vocabStatusFilter;
+    var mt = vocabTypeFilter === 'all' ||
+             v.type === vocabTypeFilter;
+    var mq = !q ||
+             (v.word || '').toLowerCase().includes(q) ||
+             (v.definition || '').toLowerCase().includes(q) ||
+             (v.related || '').toLowerCase().includes(q) ||
+             (v.source || '').toLowerCase().includes(q);
+    return ms && mt && mq;
+  });
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty">No vocabulary found.<br>' +
+      'Add words from emails, articles or reading!</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(function(v) {
+    var typeInfo = VTYPE_LABELS[v.type] || VTYPE_LABELS.other;
+
+    // Google search URL
+    var googleQuery = '"' + (v.word || '') +
+      '" word meaning definition english';
+    var googleUrl = 'https://www.google.com/search?q=' +
+      encodeURIComponent(googleQuery);
+
+    // YouGlish URL
+    var ygUrl = 'https://youglish.com/pronounce/' +
+      encodeURIComponent(v.word || '') + '/english/us';
+
+    return '<div class="vocab-card">' +
+
+      // Word + type badge
+      '<div class="vocab-word">' + esc(v.word) + '</div>' +
+      '<span class="vocab-type ' + typeInfo.cls + '">' +
+        typeInfo.label +
+      '</span>' +
+
+      // Definition
+      (v.definition
+        ? '<div class="vocab-def">📖 ' + esc(v.definition) + '</div>'
+        : '<div class="vocab-def" style="color:var(--text2);">' +
+            '📖 No definition yet — tap Google to look it up!</div>') +
+
+      // Example
+      (v.example
+        ? '<div class="vocab-example">"' + esc(v.example) + '"</div>'
+        : '') +
+
+      // Related words
+      (v.related
+        ? '<div class="vocab-related">🔗 ' + esc(v.related) + '</div>'
+        : '') +
+
+      // Source
+      (v.source
+        ? '<div class="vocab-source">📌 From: ' +
+            esc(v.source) + '</div>'
+        : '') +
+
+      // Status pill
+      '<div style="margin-bottom:8px;">' +
+        '<span class="pill pill-' + v.status + '">' +
+          v.status +
+        '</span>' +
+      '</div>' +
+
+      // Action buttons
+      '<div class="vocab-actions">' +
+
+        // Google button
+        '<a href="' + googleUrl + '" target="_blank" ' +
+          'class="btn btn-google btn-sm">🔍 Google</a>' +
+
+        // YouGlish button
+        '<a href="' + ygUrl + '" target="_blank" ' +
+          'class="btn btn-youglish btn-sm">🎬 YouGlish</a>' +
+
+        // Status select
+        '<select class="btn btn-sm" ' +
+          'style="flex:0 0 auto;padding:5px;" ' +
+          'onchange="setVocabStatus(\'' + v.id + '\',this.value)">' +
+          '<option value="learning"' +
+            (v.status === 'learning' ? ' selected' : '') +
+            '>Learning</option>' +
+          '<option value="practicing"' +
+            (v.status === 'practicing' ? ' selected' : '') +
+            '>Practicing</option>' +
+          '<option value="mastered"' +
+            (v.status === 'mastered' ? ' selected' : '') +
+            '>Mastered</option>' +
+        '</select>' +
+
+        // Edit button
+        '<button class="btn btn-gray btn-sm" ' +
+          'onclick="openEditVocab(\'' + v.id + '\')">✏️ Edit</button>' +
+
+        // Delete button
+        '<button class="btn btn-danger btn-sm" ' +
+          'onclick="deleteVocab(\'' + v.id + '\')">🗑️</button>' +
+
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── QUICK ADD VOCAB ──
+function quickAddVocab() {
+  var word = document.getElementById('quickVocabInput').value.trim();
+  if (!word) { toast('Type a word first!', 'error'); return; }
+  vocabs.unshift({
+    id: uid(),
+    word: word,
+    type: 'other',
+    definition: '',
+    example: '',
+    related: '',
+    source: '',
+    status: 'learning',
+    ts: Date.now()
+  });
+  persistVocab();
+  document.getElementById('quickVocabInput').value = '';
+  renderVocab();
+  toast('✅ "' + word + '" saved! Fill details later.');
+}
+
+// ── OPEN VOCAB MODAL ──
+function openVocabModal() {
+  document.getElementById('vocabModalTitle').textContent = '📖 Add Word';
+  document.getElementById('vocabEditId').value = '';
+  ['vWord','vDefinition','vExample','vRelated','vSource']
+    .forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+  document.getElementById('vType').value = 'noun';
+  document.getElementById('vStatus').value = 'learning';
+  openMod('vocabModal');
+}
+
+// ── OPEN EDIT VOCAB ──
+function openEditVocab(id) {
+  var v = vocabs.find(function(x) { return x.id === id; });
+  if (!v) return;
+  document.getElementById('vocabModalTitle').textContent =
+    '✏️ Edit Word';
+  document.getElementById('vocabEditId').value = id;
+  document.getElementById('vWord').value = v.word || '';
+  document.getElementById('vType').value = v.type || 'other';
+  document.getElementById('vDefinition').value = v.definition || '';
+  document.getElementById('vExample').value = v.example || '';
+  document.getElementById('vRelated').value = v.related || '';
+  document.getElementById('vSource').value = v.source || '';
+  document.getElementById('vStatus').value = v.status || 'learning';
+  openMod('vocabModal');
+}
+
+// ── SAVE VOCAB ──
+function saveVocab() {
+  var word = document.getElementById('vWord').value.trim();
+  if (!word) { toast('Word is required!', 'error'); return; }
+  var id = document.getElementById('vocabEditId').value;
+  var data = {
+    word: word,
+    type: document.getElementById('vType').value,
+    definition: document.getElementById('vDefinition').value.trim(),
+    example: document.getElementById('vExample').value.trim(),
+    related: document.getElementById('vRelated').value.trim(),
+    source: document.getElementById('vSource').value.trim(),
+    status: document.getElementById('vStatus').value,
+  };
+  if (id) {
+    var i = vocabs.findIndex(function(v) { return v.id === id; });
+    if (i >= 0) vocabs[i] = Object.assign({}, vocabs[i], data);
+    toast('✅ Word updated!');
+  } else {
+    vocabs.unshift(Object.assign({ id: uid(), ts: Date.now() }, data));
+    toast('✅ Word added!');
+  }
+  persistVocab();
+  closeMod('vocabModal');
+  renderVocab();
+}
+
+// ── SET VOCAB STATUS ──
+function setVocabStatus(id, status) {
+  var v = vocabs.find(function(x) { return x.id === id; });
+  if (v) {
+    v.status = status;
+    persistVocab();
+    renderVocab();
+    toast('Updated!');
+  }
+}
+
+// ── DELETE VOCAB ──
+function deleteVocab(id) {
+  if (!confirm('Delete this word?')) return;
+  vocabs = vocabs.filter(function(v) { return v.id !== id; });
+  persistVocab();
+  renderVocab();
+  toast('Deleted', 'warn');
+}  
 // ── INIT ──
 renderHome();
 </script>
